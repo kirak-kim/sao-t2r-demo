@@ -434,7 +434,7 @@ function setMode(mode) {
     hint.innerHTML = '<strong>Guess mode:</strong> Which sample is the Ground Truth? Listen and decide — then switch to <em>Just Demo</em> to reveal!';
   } else {
     btnDemo.classList.add('active'); btnGuess.classList.remove('active', 'guess');
-    hint.innerHTML = '<strong>Demo mode:</strong> Labels are visible. <span style="color:var(--green);font-weight:600;">Ground Truth</span>, <span style="color:var(--blue);font-weight:600;">Ours</span>, <span style="color:var(--purple);font-weight:600;">SAO-Scratch</span>, <span style="color:var(--amber);font-weight:600;">Image2Reverb</span>.';
+    hint.innerHTML = '<strong>Demo mode:</strong> Labels are visible. <span style="color:var(--green);font-weight:600;">Ground Truth</span>, <span style="color:var(--blue);font-weight:600;">SAO-Finetuned</span>, <span style="color:var(--purple);font-weight:600;">SAO-Scratch</span>, <span style="color:var(--amber);font-weight:600;">Image2Reverb</span>.';
   }
 }
 
