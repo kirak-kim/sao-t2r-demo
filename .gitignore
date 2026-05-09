@@ -1,0 +1,10 @@
+# Paper (draft)
+260509.pdf
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Editor
+.vscode/
+*.swp

@@ -1,0 +1,410 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>SAO-T2R — Text-to-RIR Generation Demo</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:ital,wght@0,400;0,500;0,600;0,700;1,400&display=swap" rel="stylesheet">
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --bg: #f5f7fa;
+      --card: #ffffff;
+      --border: #e2e8f0;
+      --text: #1e293b;
+      --muted: #64748b;
+      --blue: #2563eb;
+      --blue-light: #eff6ff;
+      --green: #059669;
+      --green-light: #ecfdf5;
+      --purple: #7c3aed;
+      --purple-light: #f5f3ff;
+      --amber: #d97706;
+      --amber-light: #fffbeb;
+      --gray: #475569;
+      --gray-light: #f1f5f9;
+      --radius: 12px;
+      --shadow: 0 1px 3px rgba(0,0,0,.06), 0 4px 12px rgba(0,0,0,.05);
+      --shadow-hover: 0 4px 12px rgba(0,0,0,.1), 0 8px 24px rgba(0,0,0,.08);
+    }
+
+    body {
+      font-family: 'Inter', system-ui, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      line-height: 1.6;
+    }
+
+    a { color: var(--blue); text-decoration: none; }
+    a:hover { text-decoration: underline; }
+
+    .container { max-width: 900px; margin: 0 auto; padding: 0 20px; }
+
+    /* ── HERO ────────────────────────────────────────── */
+    .hero {
+      background: linear-gradient(135deg, #1e3a5f 0%, #0f2040 100%);
+      color: white;
+      padding: 60px 20px 52px;
+      text-align: center;
+    }
+    .hero h1 {
+      font-size: clamp(1.6rem, 4vw, 2.4rem);
+      font-weight: 700;
+      line-height: 1.25;
+      margin-bottom: 16px;
+      letter-spacing: -.02em;
+    }
+    .hero .authors {
+      font-size: 1.05rem;
+      color: #93c5fd;
+      margin-bottom: 4px;
+    }
+    .hero .affiliation {
+      font-size: .9rem;
+      color: #94a3b8;
+      margin-bottom: 28px;
+    }
+    .hero-links { display: flex; gap: 12px; justify-content: center; flex-wrap: wrap; margin-bottom: 36px; }
+    .hero-links a {
+      display: inline-flex; align-items: center; gap: 6px;
+      padding: 8px 18px; border-radius: 8px; font-size: .9rem; font-weight: 500;
+      transition: transform .15s, box-shadow .15s;
+    }
+    .hero-links a:hover { transform: translateY(-1px); box-shadow: 0 4px 12px rgba(0,0,0,.25); text-decoration: none; }
+    .btn-paper { background: white; color: #1e293b; }
+    .btn-arxiv { background: rgba(255,255,255,.15); color: white; border: 1px solid rgba(255,255,255,.3); }
+
+    .abstract-box {
+      max-width: 680px; margin: 0 auto;
+      background: rgba(255,255,255,.07); border: 1px solid rgba(255,255,255,.12);
+      border-radius: var(--radius); padding: 24px 28px; text-align: left;
+    }
+    .abstract-box h2 { font-size: .8rem; font-weight: 600; letter-spacing: .08em; text-transform: uppercase; color: #93c5fd; margin-bottom: 10px; }
+    .abstract-box p { font-size: .93rem; color: #cbd5e1; line-height: 1.7; }
+
+    /* ── SECTION HEADING ────────────────────────────── */
+    .section { padding: 56px 0; }
+    .section-title { font-size: 1.6rem; font-weight: 700; margin-bottom: 8px; }
+    .section-sub { color: var(--muted); font-size: .95rem; margin-bottom: 32px; }
+
+    /* ── TOGGLE ─────────────────────────────────────── */
+    .toggle-wrap {
+      display: flex; align-items: center; gap: 16px; flex-wrap: wrap;
+      background: var(--card); border: 1px solid var(--border);
+      border-radius: 14px; padding: 16px 20px; margin-bottom: 36px;
+      box-shadow: var(--shadow);
+    }
+    .toggle-label { font-weight: 600; font-size: .95rem; margin-right: 4px; }
+    .toggle-pills { display: flex; background: var(--bg); border-radius: 10px; padding: 3px; gap: 2px; }
+    .toggle-pill {
+      padding: 8px 18px; border-radius: 8px; border: none; cursor: pointer;
+      font-size: .88rem; font-weight: 500; transition: all .2s;
+      background: transparent; color: var(--muted);
+    }
+    .toggle-pill.active { background: var(--blue); color: white; box-shadow: 0 2px 6px rgba(37,99,235,.4); }
+    .toggle-pill.active.guess { background: #7c3aed; box-shadow: 0 2px 6px rgba(124,58,237,.4); }
+    .toggle-hint { font-size: .85rem; color: var(--muted); flex: 1; min-width: 200px; }
+    .toggle-hint strong { color: var(--text); }
+
+    /* ── SAMPLE CARD ─────────────────────────────────── */
+    .sample-card {
+      background: var(--card); border: 1px solid var(--border);
+      border-radius: var(--radius); margin-bottom: 28px;
+      box-shadow: var(--shadow); overflow: hidden;
+      transition: box-shadow .2s;
+    }
+    .sample-card:hover { box-shadow: var(--shadow-hover); }
+
+    .card-top { display: flex; gap: 0; }
+    .card-image { width: 220px; min-width: 220px; aspect-ratio: 4/3; object-fit: cover; flex-shrink: 0; }
+    .card-meta { padding: 20px 22px; flex: 1; min-width: 0; }
+    .card-name { font-size: .75rem; font-weight: 600; letter-spacing: .06em; text-transform: uppercase; color: var(--blue); margin-bottom: 6px; }
+    .card-caption { font-size: .85rem; color: var(--muted); line-height: 1.65; display: -webkit-box; -webkit-line-clamp: 5; -webkit-box-orient: vertical; overflow: hidden; }
+    .caption-toggle { font-size: .8rem; color: var(--blue); cursor: pointer; margin-top: 4px; display: inline-block; }
+    .card-caption.expanded { -webkit-line-clamp: unset; }
+
+    .card-audio { padding: 18px 22px; border-top: 1px solid var(--border); }
+    .dry-row { margin-bottom: 16px; }
+    .dry-label { font-size: .75rem; font-weight: 600; text-transform: uppercase; letter-spacing: .06em; color: var(--gray); margin-bottom: 6px; }
+    .dry-row audio { width: 100%; height: 36px; }
+
+    .model-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+    .model-item { display: flex; flex-direction: column; gap: 6px; }
+    .model-badge {
+      display: inline-flex; align-items: center; gap: 6px;
+      padding: 4px 10px; border-radius: 6px; font-size: .75rem; font-weight: 600;
+      width: fit-content; transition: all .3s;
+    }
+    .model-badge .dot { width: 6px; height: 6px; border-radius: 50%; flex-shrink: 0; }
+    .badge-gt    { background: var(--green-light);  color: var(--green);  }
+    .badge-gt    .dot { background: var(--green);  }
+    .badge-ours  { background: var(--blue-light);   color: var(--blue);   }
+    .badge-ours  .dot { background: var(--blue);   }
+    .badge-scr   { background: var(--purple-light); color: var(--purple); }
+    .badge-scr   .dot { background: var(--purple); }
+    .badge-i2r   { background: var(--amber-light);  color: var(--amber);  }
+    .badge-i2r   .dot { background: var(--amber);  }
+    .badge-hidden { background: var(--gray-light); color: var(--gray); }
+    .badge-hidden .dot { background: var(--gray); }
+    .model-item audio { width: 100%; height: 36px; }
+
+    /* mode visibility */
+    body.guess-mode .label-real  { display: none; }
+    body.guess-mode .label-anon  { display: inline-flex; }
+    body.demo-mode  .label-real  { display: inline-flex; }
+    body.demo-mode  .label-anon  { display: none; }
+    .label-anon { display: none; }
+
+    /* ── IN THE WILD ─────────────────────────────────── */
+    .wild-section { background: linear-gradient(135deg, #1e3a5f 0%, #0f2040 100%); padding: 56px 0; }
+    .wild-section .section-title { color: white; }
+    .wild-section .section-sub { color: #94a3b8; }
+    .wild-cards { display: grid; grid-template-columns: 1fr 1fr; gap: 18px; }
+    .wild-card {
+      background: rgba(255,255,255,.07); border: 1px solid rgba(255,255,255,.12);
+      border-radius: var(--radius); padding: 24px;
+      transition: background .2s, transform .2s;
+    }
+    .wild-card:hover { background: rgba(255,255,255,.11); transform: translateY(-2px); }
+    .wild-prompt {
+      font-size: 1.05rem; font-weight: 600; color: white;
+      line-height: 1.4; margin-bottom: 4px;
+    }
+    .wild-prompt::before { content: '"'; color: #60a5fa; font-size: 1.3rem; line-height: 0; vertical-align: -.15em; }
+    .wild-prompt::after  { content: '"'; color: #60a5fa; font-size: 1.3rem; line-height: 0; vertical-align: -.15em; }
+    .wild-tag { font-size: .72rem; color: #93c5fd; letter-spacing: .06em; text-transform: uppercase; font-weight: 600; margin-bottom: 16px; }
+    .wild-card audio { width: 100%; height: 36px; }
+    .wild-card:last-child:nth-child(odd) { grid-column: 1 / -1; max-width: 420px; }
+
+    /* ── FOOTER ──────────────────────────────────────── */
+    footer { padding: 32px 20px; text-align: center; font-size: .82rem; color: var(--muted); border-top: 1px solid var(--border); }
+
+    /* ── RESPONSIVE ──────────────────────────────────── */
+    @media (max-width: 640px) {
+      .card-top { flex-direction: column; }
+      .card-image { width: 100%; aspect-ratio: 16/9; }
+      .model-grid { grid-template-columns: 1fr; }
+      .wild-cards { grid-template-columns: 1fr; }
+      .wild-card:last-child:nth-child(odd) { max-width: none; }
+    }
+  </style>
+</head>
+<body class="guess-mode">
+
+<!-- ── HERO ──────────────────────────────────────────────────── -->
+<div class="hero">
+  <div class="container">
+    <h1>Adapting a Text-to-Audio Model for<br>Room Impulse Response Generation</h1>
+    <div class="authors">Kirak Kim &nbsp;·&nbsp; Sungyoung Kim</div>
+    <div class="affiliation">Graduate School of Culture Technology, KAIST, South Korea</div>
+    <div class="hero-links">
+      <a href="260509.pdf" class="btn-paper">📄 Paper</a>
+      <a href="https://github.com/sao-t2r-demo" class="btn-arxiv">💻 Code</a>
+    </div>
+    <div class="abstract-box">
+      <h2>Abstract</h2>
+      <p>Room Impulse Responses (RIRs) enable realistic acoustic simulation, with applications ranging from multimedia production to speech data augmentation. However, acquiring high-quality real-world RIRs is labor-intensive, and data scarcity remains a challenge for data-driven approaches. We propose adapting a pre-trained text-to-audio model for RIR generation — demonstrating for the first time that large-scale generative audio priors can be effectively leveraged for this task. Using a VLM-driven labeling pipeline and an in-context learning strategy, our model generates plausible, full-bandwidth RIRs from free-form text descriptions using only a small set of real-world RIR data.</p>
+    </div>
+  </div>
+</div>
+
+<!-- ── EVALUATION DEMOS ───────────────────────────────────────── -->
+<section class="section">
+  <div class="container">
+    <h2 class="section-title">Evaluation Demos</h2>
+    <p class="section-sub">Each sample shows a room image, its acoustic description, and the resulting convolved audio from each method. Dry signal is always labeled; model outputs can be revealed.</p>
+
+    <!-- TOGGLE -->
+    <div class="toggle-wrap">
+      <div class="toggle-pills">
+        <button class="toggle-pill guess active" id="btn-guess" onclick="setMode('guess')">🎲 Guess the GT!</button>
+        <button class="toggle-pill" id="btn-demo" onclick="setMode('demo')">🎵 Just Demo</button>
+      </div>
+      <span class="toggle-hint" id="toggle-hint">
+        <strong>Guess mode:</strong> Which sample is the Ground Truth? Listen and decide — then switch to <em>Just Demo</em> to reveal!
+      </span>
+    </div>
+
+    <!-- SAMPLE CARDS — injected by JS -->
+    <div id="cards-container"></div>
+  </div>
+</section>
+
+<!-- ── IN THE WILD ─────────────────────────────────────────────── -->
+<section class="wild-section">
+  <div class="container">
+    <h2 class="section-title">In the Wild</h2>
+    <p class="section-sub">Free-form, imaginative prompts beyond conventional acoustic descriptions — showcasing the model's text understanding.</p>
+    <div class="wild-cards" id="wild-container"></div>
+  </div>
+</section>
+
+<!-- ── FOOTER ─────────────────────────────────────────────────── -->
+<footer>
+  <div class="container">
+    <p>Kirak Kim, Sungyoung Kim — Graduate School of Culture Technology, KAIST, 2025</p>
+  </div>
+</footer>
+
+<script>
+/* ─── DATA ──────────────────────────────────────────────────── */
+const SAMPLES = [
+  {
+    id: 'BUT__CR2__cap001',
+    name: 'BUT ReverbDB — CR2 Room',
+    caption: 'A medium enclosed rectangular space with moderate absorption walls. The floor is carpeted with moderate to high absorption. The ceiling consists of wooden slats with low absorption. Large windows covered with curtains are present. The space is moderately furnished with tables and chairs, acting as absorbers and diffusers, and features a projector screen and wall-mounted speakers. This space sounds moderately reverberant with a warm character, suitable for presentations.',
+    base: 'samples/test_sets/BUT__CR2__cap001',
+  },
+  {
+    id: 'OpenAIR__02_Forest-in-WheldrakeWood__cap000',
+    name: 'OpenAIR — Forest in Wheldrake Wood',
+    caption: 'This is an unenclosed outdoor forest environment. The ground is covered with dark soil and organic debris, providing moderate absorption. Tree trunks act as scatterers and some reflective boundaries. The space is fully open-air. A microphone is visible near the ground. The acoustic character is dry and lacks reverberation due to the absence of enclosing surfaces, with sound propagation dominated by scattering from trees.',
+    base: 'samples/test_sets/OpenAIR__02_Forest-in-WheldrakeWood__cap000',
+  },
+  {
+    id: 'OpenAIR__07_creswell-crags__outside__cap000',
+    name: 'OpenAIR — Creswell Crags (Outside)',
+    caption: 'This is an open-air environment, a natural field with a grassy ground surface. Dense vegetation and sparsely distributed tree trunks act as nearby scatterers. The space is fully unenclosed, with no nearby reflective boundaries. The acoustic character is dry, with minimal reverberation due to the high absorption of the ground and vegetation. A microphone is visible, positioned near the vegetation.',
+    base: 'samples/test_sets/OpenAIR__07_creswell-crags__outside__cap000',
+  },
+  {
+    id: 'OpenAIR__14_gill-heads-mine__site2__cap003',
+    name: 'OpenAIR — Gill Heads Mine (Site 2)',
+    caption: 'This medium enclosed space has a corridor-like shape. The rough, rocky walls and floor provide moderate absorption. The ceiling is part of the same rocky structure and likely offers similar absorption. There are no visible openings. A tripod-mounted microphone is present. The space sounds moderately reverberant, with a balance of early reflections and a diffuse tail.',
+    base: 'samples/test_sets/OpenAIR__14_gill-heads-mine__site2__cap003',
+  },
+  {
+    id: 'OpenAIR__15_hamilton-mausoleum__cap000',
+    name: 'OpenAIR — Hamilton Mausoleum',
+    caption: 'A medium enclosed space has stone or concrete walls with moderate absorption. The floor is patterned tile with moderate absorption. The ceiling material and absorption are assumed to be similar to the walls. A wooden or metal door is visible. The space is sparsely furnished with a central pole and barriers. The overall acoustic character is moderately reverberant, with a balance of early reflections and a diffuse tail.',
+    base: 'samples/test_sets/OpenAIR__15_hamilton-mausoleum__cap000',
+  },
+  {
+    id: 'OpenAIR__17_hoffmann-lime-kiln-langcliffeuk__cap001',
+    name: 'OpenAIR — Hoffmann Lime Kiln',
+    caption: 'A medium enclosed corridor with an arched shape features walls of rough stone or concrete with moderate absorption. The wet, reflective concrete floor has low absorption, and the arched ceiling, made of the same material as the walls, also offers moderate absorption. No windows or doors are visible, and the space is empty of furnishings. This enclosed environment is highly reverberant, characterized by strong early reflections and a long, diffuse tail due to the hard, reflective surfaces.',
+    base: 'samples/test_sets/OpenAIR__17_hoffmann-lime-kiln-langcliffeuk__cap001',
+  },
+  {
+    id: 'OpenAIR__42_dixon-studio-theatre-university-york__cap000',
+    name: 'OpenAIR — Dixon Studio Theatre, University of York',
+    caption: 'A medium enclosed rectangular space with moderate wall absorption, low floor absorption, and moderate ceiling absorption. An exit sign indicates a door is present. Furnishings are sparse, with a few chairs and audio equipment. The space sounds reverberant, with a bright acoustic character dominated by early reflections.',
+    base: 'samples/test_sets/OpenAIR__42_dixon-studio-theatre-university-york__cap000',
+  },
+];
+
+const MODELS = [
+  { key: 'gt',          label: 'Ground Truth',    badgeClass: 'badge-gt'   },
+  { key: 'ours',        label: 'Ours (SAO-FT)',   badgeClass: 'badge-ours' },
+  { key: 'scratch',     label: 'SAO-Scratch',     badgeClass: 'badge-scr'  },
+  { key: 'image2reverb',label: 'Image2Reverb',    badgeClass: 'badge-i2r'  },
+];
+
+const WILD = [
+  { prompt: 'A really big room and my voice goes whoo', file: 'samples/in_the_wild_convolved/000_a_really_big_room_and_my_voice_goes_whoo_conv.wav' },
+  { prompt: 'The cavernous belly of the great whale', file: 'samples/in_the_wild_convolved/001_the_cavernous_belly_of_the_great_whale_r_conv.wav' },
+  { prompt: 'An outdoor concert hall with no walls', file: 'samples/in_the_wild_convolved/002_an_outdoor_concert_hall_with_no_walls_conv.wav' },
+  { prompt: 'Small small small', file: 'samples/in_the_wild_convolved/003_small_small_small_conv.wav' },
+  { prompt: 'A room that sounds the color blue', file: 'samples/in_the_wild_convolved/004_a_room_that_sounds_the_color_blue_conv.wav' },
+];
+
+/* ─── SEEDED SHUFFLE ────────────────────────────────────────── */
+function strHash(s) {
+  let h = 5381;
+  for (let i = 0; i < s.length; i++) h = ((h << 5) + h + s.charCodeAt(i)) | 0;
+  return h >>> 0;
+}
+function seededShuffle(arr, seed) {
+  const a = [...arr]; let s = seed >>> 0;
+  for (let i = a.length - 1; i > 0; i--) {
+    s ^= s << 13; s ^= s >> 17; s ^= s << 5; s = s >>> 0;
+    const j = s % (i + 1);
+    [a[i], a[j]] = [a[j], a[i]];
+  }
+  return a;
+}
+const LETTERS = ['A', 'B', 'C', 'D'];
+
+/* ─── RENDER SAMPLE CARDS ───────────────────────────────────── */
+function buildCards() {
+  const container = document.getElementById('cards-container');
+  SAMPLES.forEach(sample => {
+    const shuffled = seededShuffle(MODELS, strHash(sample.id));
+    const card = document.createElement('div');
+    card.className = 'sample-card';
+
+    const modelItems = shuffled.map((m, i) => `
+      <div class="model-item">
+        <span class="model-badge label-real ${m.badgeClass}"><span class="dot"></span>${m.label}</span>
+        <span class="model-badge label-anon badge-hidden"><span class="dot"></span>Sample ${LETTERS[i]}</span>
+        <audio controls src="${sample.base}/${m.key}.wav" preload="none"></audio>
+      </div>`).join('');
+
+    card.innerHTML = `
+      <div class="card-top">
+        <img class="card-image" src="${sample.base}/room_image.jpg" alt="${sample.name}" loading="lazy">
+        <div class="card-meta">
+          <div class="card-name">${sample.name}</div>
+          <div class="card-caption" id="cap-${sample.id}">${sample.caption}</div>
+          <span class="caption-toggle" onclick="toggleCaption('${sample.id}')">Show more ↓</span>
+        </div>
+      </div>
+      <div class="card-audio">
+        <div class="dry-row">
+          <div class="dry-label">Dry (Anechoic)</div>
+          <audio controls src="${sample.base}/dry.wav" preload="none"></audio>
+        </div>
+        <div class="model-grid">${modelItems}</div>
+      </div>`;
+    container.appendChild(card);
+  });
+}
+
+function toggleCaption(id) {
+  const el = document.getElementById('cap-' + id);
+  const btn = el.nextElementSibling;
+  if (el.classList.toggle('expanded')) {
+    btn.textContent = 'Show less ↑';
+  } else {
+    btn.textContent = 'Show more ↓';
+  }
+}
+
+/* ─── RENDER WILD CARDS ─────────────────────────────────────── */
+function buildWild() {
+  const container = document.getElementById('wild-container');
+  WILD.forEach(w => {
+    const card = document.createElement('div');
+    card.className = 'wild-card';
+    card.innerHTML = `
+      <div class="wild-tag">Free-form prompt · Ours (SAO-FT)</div>
+      <div class="wild-prompt">${w.prompt}</div>
+      <p style="font-size:.82rem;color:#94a3b8;margin:8px 0 14px;">Dry speech convolved with the generated RIR</p>
+      <audio controls src="${w.file}" preload="none" style="width:100%;height:36px;"></audio>`;
+    container.appendChild(card);
+  });
+}
+
+/* ─── MODE TOGGLE ───────────────────────────────────────────── */
+function setMode(mode) {
+  document.body.className = mode + '-mode';
+  const btnGuess = document.getElementById('btn-guess');
+  const btnDemo  = document.getElementById('btn-demo');
+  const hint     = document.getElementById('toggle-hint');
+  if (mode === 'guess') {
+    btnGuess.classList.add('active', 'guess'); btnDemo.classList.remove('active');
+    hint.innerHTML = '<strong>Guess mode:</strong> Which sample is the Ground Truth? Listen and decide — then switch to <em>Just Demo</em> to reveal!';
+  } else {
+    btnDemo.classList.add('active'); btnGuess.classList.remove('active', 'guess');
+    hint.innerHTML = '<strong>Demo mode:</strong> Labels are visible. <span style="color:var(--green);font-weight:600;">Ground Truth</span>, <span style="color:var(--blue);font-weight:600;">Ours (SAO-FT)</span>, <span style="color:var(--purple);font-weight:600;">SAO-Scratch</span>, <span style="color:var(--amber);font-weight:600;">Image2Reverb</span>.';
+  }
+}
+
+/* ─── INIT ──────────────────────────────────────────────────── */
+buildCards();
+buildWild();
+</script>
+</body>
+</html>
