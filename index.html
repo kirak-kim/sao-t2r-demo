@@ -318,16 +318,16 @@ const SAMPLES = [
 
 const MODELS = [
   { key: 'gt',          label: 'Ground Truth',    badgeClass: 'badge-gt'   },
-  { key: 'ours',        label: 'Ours',   badgeClass: 'badge-ours' },
+  { key: 'ours',        label: 'SAO-Finetuned',   badgeClass: 'badge-ours' },
   { key: 'scratch',     label: 'SAO-Scratch',     badgeClass: 'badge-scr'  },
   { key: 'image2reverb',label: 'Image2Reverb',    badgeClass: 'badge-i2r'  },
 ];
 
 const WILD = [
   { prompt: 'A really big room and my voice goes whoo', file: 'samples/in_the_wild_convolved/000_a_really_big_room_and_my_voice_goes_whoo_conv.wav' },
-  { prompt: 'The cavernous belly of the great whale', file: 'samples/in_the_wild_convolved/001_the_cavernous_belly_of_the_great_whale_r_conv.wav' },
-  { prompt: 'An outdoor concert hall with no walls', file: 'samples/in_the_wild_convolved/002_an_outdoor_concert_hall_with_no_walls_conv.wav' },
   { prompt: 'Small small small', file: 'samples/in_the_wild_convolved/003_small_small_small_conv.wav' },
+  { prompt: 'An outdoor concert hall with no walls', file: 'samples/in_the_wild_convolved/002_an_outdoor_concert_hall_with_no_walls_conv.wav' },
+  { prompt: 'The cavernous belly of the great whale', file: 'samples/in_the_wild_convolved/001_the_cavernous_belly_of_the_great_whale_r_conv.wav' },
   { prompt: 'A room that sounds the color blue', file: 'samples/in_the_wild_convolved/004_a_room_that_sounds_the_color_blue_conv.wav' },
 ];
 
@@ -401,7 +401,7 @@ function buildWild() {
     const card = document.createElement('div');
     card.className = 'wild-card';
     card.innerHTML = `
-      <div class="wild-tag">Free-form prompt · Ours</div>
+      <div class="wild-tag">Free-form prompt</div>
       <div class="wild-prompt">${w.prompt}</div>
       <p style="font-size:.82rem;color:#94a3b8;margin:8px 0 14px;">Dry speech convolved with the generated RIR</p>
       <audio controls src="${w.file}" preload="none" style="width:100%;height:36px;"></audio>`;
