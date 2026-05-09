@@ -157,6 +157,29 @@
     body.demo-mode  .label-anon  { display: none; }
     .label-anon { display: none; }
 
+    /* ── GUESS BUTTON ────────────────────────────────── */
+    .guess-btn {
+      display: none;
+      align-items: center; gap: 5px;
+      padding: 4px 11px; border-radius: 6px;
+      border: 1px dashed #94a3b8; background: transparent;
+      color: #64748b; font-size: .75rem; font-family: inherit;
+      cursor: pointer; transition: all .15s; width: fit-content;
+    }
+    .guess-btn:hover { background: var(--gray-light); border-color: var(--gray); color: var(--gray); }
+    body.guess-mode .guess-btn { display: inline-flex; }
+
+    .model-item.guess-correct .guess-btn {
+      background: var(--green-light); color: var(--green);
+      border: 1px solid var(--green); border-style: solid;
+      font-weight: 600;
+    }
+    .model-item.guess-wrong .guess-btn {
+      background: #fef2f2; color: #dc2626;
+      border: 1px solid #dc2626; border-style: solid;
+      font-weight: 600;
+    }
+
     /* ── IN THE WILD ─────────────────────────────────── */
     .wild-section { background: linear-gradient(135deg, #1e3a5f 0%, #0f2040 100%); padding: 56px 0; }
     .wild-section .section-title { color: white; }
@@ -209,11 +232,10 @@
   </div>
 </div>
 
-<!-- ── EVALUATION DEMOS ───────────────────────────────────────── -->
+<!-- ── DEMOS ───────────────────────────────────────────────────── -->
 <section class="section">
   <div class="container">
-    <h2 class="section-title">Evaluation Demos</h2>
-    <p class="section-sub">Each sample shows a room image, its acoustic description, and the resulting convolved audio from each method. Dry signal is always labeled; model outputs can be revealed.</p>
+    <h2 class="section-title">Demos</h2>
 
     <!-- TOGGLE -->
     <div class="toggle-wrap">
@@ -235,7 +257,7 @@
 <section class="wild-section">
   <div class="container">
     <h2 class="section-title">In the Wild</h2>
-    <p class="section-sub">Free-form, imaginative prompts beyond conventional acoustic descriptions — showcasing the model's text understanding.</p>
+    <p class="section-sub">Free-form, imaginative prompts beyond conventional acoustic descriptions, showing model's ability and limitation.</p>
     <div class="wild-cards" id="wild-container"></div>
   </div>
 </section>
@@ -296,7 +318,7 @@ const SAMPLES = [
 
 const MODELS = [
   { key: 'gt',          label: 'Ground Truth',    badgeClass: 'badge-gt'   },
-  { key: 'ours',        label: 'Ours (SAO-FT)',   badgeClass: 'badge-ours' },
+  { key: 'ours',        label: 'Ours',   badgeClass: 'badge-ours' },
   { key: 'scratch',     label: 'SAO-Scratch',     badgeClass: 'badge-scr'  },
   { key: 'image2reverb',label: 'Image2Reverb',    badgeClass: 'badge-i2r'  },
 ];
@@ -335,10 +357,11 @@ function buildCards() {
     card.className = 'sample-card';
 
     const modelItems = shuffled.map((m, i) => `
-      <div class="model-item">
+      <div class="model-item" data-is-gt="${m.key === 'gt'}">
         <span class="model-badge label-real ${m.badgeClass}"><span class="dot"></span>${m.label}</span>
         <span class="model-badge label-anon badge-hidden"><span class="dot"></span>Sample ${LETTERS[i]}</span>
         <audio controls src="${sample.base}/${m.key}.wav" preload="none"></audio>
+        <button class="guess-btn" onclick="guessGT(this)">🎯 This is GT!</button>
       </div>`).join('');
 
     card.innerHTML = `
@@ -378,12 +401,26 @@ function buildWild() {
     const card = document.createElement('div');
     card.className = 'wild-card';
     card.innerHTML = `
-      <div class="wild-tag">Free-form prompt · Ours (SAO-FT)</div>
+      <div class="wild-tag">Free-form prompt · Ours</div>
       <div class="wild-prompt">${w.prompt}</div>
       <p style="font-size:.82rem;color:#94a3b8;margin:8px 0 14px;">Dry speech convolved with the generated RIR</p>
       <audio controls src="${w.file}" preload="none" style="width:100%;height:36px;"></audio>`;
     container.appendChild(card);
   });
+}
+
+/* ─── GUESS GT ──────────────────────────────────────────────── */
+function guessGT(btn) {
+  const item = btn.closest('.model-item');
+  const grid = btn.closest('.model-grid');
+  // reset all items in this card
+  grid.querySelectorAll('.model-item').forEach(el => {
+    el.classList.remove('guess-correct', 'guess-wrong');
+    el.querySelector('.guess-btn').textContent = '🎯 This is GT!';
+  });
+  const isGT = item.dataset.isGt === 'true';
+  item.classList.add(isGT ? 'guess-correct' : 'guess-wrong');
+  btn.textContent = isGT ? '✅ Correct!' : '❌ Wrong!';
 }
 
 /* ─── MODE TOGGLE ───────────────────────────────────────────── */
@@ -397,7 +434,7 @@ function setMode(mode) {
     hint.innerHTML = '<strong>Guess mode:</strong> Which sample is the Ground Truth? Listen and decide — then switch to <em>Just Demo</em> to reveal!';
   } else {
     btnDemo.classList.add('active'); btnGuess.classList.remove('active', 'guess');
-    hint.innerHTML = '<strong>Demo mode:</strong> Labels are visible. <span style="color:var(--green);font-weight:600;">Ground Truth</span>, <span style="color:var(--blue);font-weight:600;">Ours (SAO-FT)</span>, <span style="color:var(--purple);font-weight:600;">SAO-Scratch</span>, <span style="color:var(--amber);font-weight:600;">Image2Reverb</span>.';
+    hint.innerHTML = '<strong>Demo mode:</strong> Labels are visible. <span style="color:var(--green);font-weight:600;">Ground Truth</span>, <span style="color:var(--blue);font-weight:600;">Ours</span>, <span style="color:var(--purple);font-weight:600;">SAO-Scratch</span>, <span style="color:var(--amber);font-weight:600;">Image2Reverb</span>.';
   }
 }
 
