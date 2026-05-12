@@ -201,6 +201,31 @@
     .wild-card audio { width: 100%; height: 36px; }
     .wild-card:last-child:nth-child(odd) { grid-column: 1 / -1; max-width: 420px; }
 
+    /* ── METHOD / RESULTS ───────────────────────────── */
+    .figure-block { margin-bottom: 36px; }
+    .figure-block img { width: 100%; border-radius: var(--radius); border: 1px solid var(--border); box-shadow: var(--shadow); }
+    .figure-caption { font-size: .85rem; color: var(--muted); margin-top: 10px; text-align: center; line-height: 1.6; }
+    .figure-caption strong { color: var(--text); }
+
+    .results-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 28px; align-items: start; }
+    @media (max-width: 700px) { .results-grid { grid-template-columns: 1fr; } }
+
+    .notice-badge {
+      display: inline-flex; align-items: center; gap: 6px;
+      background: #fffbeb; border: 1px solid #fde68a; color: #92400e;
+      border-radius: 8px; padding: 8px 14px; font-size: .82rem; font-weight: 500;
+      margin-bottom: 18px; line-height: 1.5;
+    }
+
+    /* quantitative table */
+    .quant-table { width: 100%; border-collapse: collapse; font-size: .84rem; }
+    .quant-table th, .quant-table td { padding: 9px 12px; text-align: center; border-bottom: 1px solid var(--border); }
+    .quant-table th { font-weight: 600; font-size: .78rem; letter-spacing: .04em; text-transform: uppercase; color: var(--muted); background: var(--gray-light); }
+    .quant-table td:first-child { text-align: left; font-weight: 500; }
+    .quant-table tr:last-child td { border-bottom: none; }
+    .quant-table .best { font-weight: 700; color: var(--blue); }
+    .quant-table-wrap { background: var(--card); border: 1px solid var(--border); border-radius: var(--radius); overflow: hidden; box-shadow: var(--shadow); }
+
     /* ── FOOTER ──────────────────────────────────────── */
     footer { padding: 32px 20px; text-align: center; font-size: .82rem; color: var(--muted); border-top: 1px solid var(--border); }
 
@@ -232,10 +257,72 @@
   </div>
 </div>
 
+<!-- ── METHOD OVERVIEW ──────────────────────────────────────────── -->
+<section class="section" style="padding-bottom: 16px;">
+  <div class="container">
+    <h2 class="section-title">Method Overview</h2>
+    <p class="section-sub">A pre-trained text-to-audio model (SAO) is adapted for RIR generation via a VLM-driven labeling pipeline and in-context learning.</p>
+    <div class="figure-block">
+      <img src="full_fig_260509.png" alt="SAO-T2R full pipeline diagram">
+      <p class="figure-caption"><strong>Figure 1.</strong> Full pipeline: (Left) a vision-language model extracts acoustic descriptions from image-RIR pairs to construct text-RIR training data; (Right) the text-to-audio model is fine-tuned on this data and conditioned via in-context learning during inference.</p>
+    </div>
+  </div>
+</section>
+
+<!-- ── RESULTS ──────────────────────────────────────────────────── -->
+<section class="section" style="padding-top: 16px;">
+  <div class="container">
+    <h2 class="section-title">Results</h2>
+    <p class="section-sub">Evaluated on the <strong>full test set (BUT + OpenAir)</strong>.</p>
+
+    <div class="results-grid">
+      <!-- Quantitative -->
+      <div>
+        <div class="notice-badge">⚠ Full test set results (BUT + OpenAir)</div>
+        <div class="quant-table-wrap">
+          <table class="quant-table">
+            <thead>
+              <tr>
+                <th>Model</th>
+                <th>RT60 Mean (%)</th>
+                <th>RT60 Median (%)</th>
+                <th>D50 Mean (%)</th>
+                <th>D50 Median (%)</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>Image2Reverb</td>
+                <td>441.3</td><td>204.8</td><td>−18.4</td><td>−22.6</td>
+              </tr>
+              <tr>
+                <td>SAO-Finetuned</td>
+                <td class="best">8.4</td><td>−53.3</td><td class="best">9.4</td><td class="best">7.8</td>
+              </tr>
+              <tr>
+                <td>SAO-Scratch</td>
+                <td>30.7</td><td class="best">−42.1</td><td>14.1</td><td>7.8</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+        <p class="figure-caption" style="text-align:left; margin-top:8px;">Values closer to 0 indicate better performance. <span style="color:var(--blue);font-weight:600;">Bold</span> = best.</p>
+      </div>
+
+      <!-- MOS figure -->
+      <div class="figure-block" style="margin-bottom:0;">
+        <img src="mos_overall_260509_3.png" alt="Subjective listening test MOS results">
+        <p class="figure-caption"><strong>Figure 2.</strong> Mean Opinion Score (MOS) from subjective listening test. Error bars show 95% confidence intervals.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
 <!-- ── DEMOS ───────────────────────────────────────────────────── -->
 <section class="section">
   <div class="container">
     <h2 class="section-title">Demos</h2>
+    <p class="section-sub" style="margin-bottom:16px;">All samples below are drawn from the <strong>full test set (BUT + OpenAir)</strong>.</p>
 
     <!-- TOGGLE -->
     <div class="toggle-wrap">
