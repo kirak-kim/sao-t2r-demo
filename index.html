@@ -252,7 +252,7 @@
     </div>
     <div class="abstract-box">
       <h2>Abstract</h2>
-      <p>Room Impulse Responses (RIRs) enable realistic acoustic simulation, with applications ranging from multimedia production to speech data augmentation. However, acquiring high-quality real-world RIRs is labor-intensive, and data scarcity remains a challenge for data-driven approaches. We propose adapting a pre-trained text-to-audio model for RIR generation — demonstrating for the first time that large-scale generative audio priors can be effectively leveraged for this task. Using a VLM-driven labeling pipeline and an in-context learning strategy, our model generates plausible, full-bandwidth RIRs from free-form text descriptions using only a small set of real-world RIR data.</p>
+      <p>Room Impulse Responses (RIRs) enable realistic acoustic simulation, with applications ranging from multimedia production to speech data augmentation. However, acquiring high-quality real-world RIRs is labor-intensive, and data scarcity remains a challenge for data-driven approaches. We propose adapting a pre-trained text-to-audio model for RIR generation, demonstrating for the first time that large-scale generative audio priors can be effectively leveraged for this task. Using a VLM-driven labeling pipeline and an in-context learning strategy, our model generates plausible, full-bandwidth RIRs from free-form text descriptions using only a small set of real-world RIR data.</p>
     </div>
   </div>
 </div>
@@ -261,7 +261,7 @@
 <section class="section" style="padding-bottom: 16px;">
   <div class="container">
     <h2 class="section-title">Method Overview</h2>
-    <p class="section-sub">A pre-trained text-to-audio model (SAO) is adapted for RIR generation via a VLM-driven labeling pipeline and in-context learning.</p>
+    <p class="section-sub">Stable Audio Open (SAO), a pre-trained text-to-audio model, is adapted for RIR generation via a VLM-driven labeling pipeline and in-context learning.</p>
     <div class="figure-block">
       <img src="full_fig_260509.png" alt="SAO-T2R full pipeline diagram">
       <p class="figure-caption"><strong>Figure 1.</strong> Full pipeline: (Left) a vision-language model extracts acoustic descriptions from image-RIR pairs to construct text-RIR training data; (Right) the text-to-audio model is fine-tuned on this data and conditioned via in-context learning during inference.</p>
@@ -273,12 +273,11 @@
 <section class="section" style="padding-top: 16px;">
   <div class="container">
     <h2 class="section-title">Results</h2>
-    <p class="section-sub">Evaluated on the <strong>full test set (BUT + OpenAir)</strong>.</p>
+    <p class="section-sub">Evaluated on the test set (BUT + OpenAir).</p>
 
     <div class="results-grid">
       <!-- Quantitative -->
       <div>
-        <div class="notice-badge">⚠ Full test set results (BUT + OpenAir)</div>
         <div class="quant-table-wrap">
           <table class="quant-table">
             <thead>
