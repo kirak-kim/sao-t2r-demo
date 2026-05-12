@@ -264,7 +264,7 @@
     <p class="section-sub">Stable Audio Open (SAO), a pre-trained text-to-audio model, is adapted for RIR generation via a VLM-driven labeling pipeline and in-context learning.</p>
     <div class="figure-block">
       <img src="full_fig_260509.png" alt="SAO-T2R full pipeline diagram">
-      <p class="figure-caption"><strong>Figure 1.</strong> Full pipeline: (Left) a vision-language model extracts acoustic descriptions from image-RIR pairs to construct text-RIR training data; (Right) the text-to-audio model is fine-tuned on this data and conditioned via in-context learning during inference.</p>
+      <p class="figure-caption"><strong>Figure 1.</strong> Full pipeline: (Top) a vision-language model extracts acoustic descriptions from image-RIR pairs to construct text-RIR training data; (Bottom) the text-to-audio model is fine-tuned on this data and conditioned via in-context learning during inference.</p>
     </div>
   </div>
 </section>
@@ -273,7 +273,7 @@
 <section class="section" style="padding-top: 16px;">
   <div class="container">
     <h2 class="section-title">Results</h2>
-    <p class="section-sub">Evaluated on the test set (BUT + OpenAir).</p>
+    <p class="section-sub">Evaluated on the test set (BUT + OpenAir; 138 pairs from 7 unseen rooms).</p>
 
     <div class="results-grid">
       <!-- Quantitative -->
@@ -321,7 +321,7 @@
 <section class="section">
   <div class="container">
     <h2 class="section-title">Demos</h2>
-    <p class="section-sub" style="margin-bottom:16px;">All samples below are drawn from the <strong>full test set (BUT + OpenAir)</strong>.</p>
+    <p class="section-sub" style="margin-bottom:16px;">All samples below are drawn from the test set (BUT + OpenAir).</p>
 
     <!-- TOGGLE -->
     <div class="toggle-wrap">
@@ -330,7 +330,7 @@
         <button class="toggle-pill" id="btn-demo" onclick="setMode('demo')">🎵 Just Demo</button>
       </div>
       <span class="toggle-hint" id="toggle-hint">
-        <strong>Guess mode:</strong> Which sample is the Ground Truth? Listen and decide — then switch to <em>Just Demo</em> to reveal!
+        <strong>Guess mode:</strong> Which sample is the Ground Truth? Listen and decide, then switch to <em>Just Demo</em> to reveal!
       </span>
     </div>
 
@@ -517,7 +517,7 @@ function setMode(mode) {
   const hint     = document.getElementById('toggle-hint');
   if (mode === 'guess') {
     btnGuess.classList.add('active', 'guess'); btnDemo.classList.remove('active');
-    hint.innerHTML = '<strong>Guess mode:</strong> Which sample is the Ground Truth? Listen and decide — then switch to <em>Just Demo</em> to reveal!';
+    hint.innerHTML = '<strong>Guess mode:</strong> Which sample is the Ground Truth? Listen and decide, then switch to <em>Just Demo</em> to reveal!';
   } else {
     btnDemo.classList.add('active'); btnGuess.classList.remove('active', 'guess');
     hint.innerHTML = '<strong>Demo mode:</strong> Labels are visible. <span style="color:var(--green);font-weight:600;">Ground Truth</span>, <span style="color:var(--blue);font-weight:600;">SAO-Finetuned</span>, <span style="color:var(--purple);font-weight:600;">SAO-Scratch</span>, <span style="color:var(--amber);font-weight:600;">Image2Reverb</span>.';
