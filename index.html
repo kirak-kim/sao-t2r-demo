@@ -95,6 +95,7 @@
       background: var(--card); border: 1px solid var(--border);
       border-radius: 14px; padding: 16px 20px; margin-bottom: 36px;
       box-shadow: var(--shadow);
+      position: sticky; top: 12px; z-index: 20;
     }
     .toggle-label { font-weight: 600; font-size: .95rem; margin-right: 4px; }
     .toggle-pills { display: flex; background: var(--bg); border-radius: 10px; padding: 3px; gap: 2px; }
@@ -231,6 +232,9 @@
 
     /* ── RESPONSIVE ──────────────────────────────────── */
     @media (max-width: 640px) {
+      .toggle-wrap { top: 8px; gap: 8px 12px; padding: 10px 12px; margin-bottom: 24px; }
+      .toggle-pill { padding: 7px 12px; }
+      .toggle-hint { min-width: 100%; font-size: .78rem; line-height: 1.4; }
       .card-top { flex-direction: column; }
       .card-image { width: 100%; aspect-ratio: 16/9; }
       .model-grid { grid-template-columns: 1fr; }
